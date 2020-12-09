@@ -1,0 +1,53 @@
+---
+title: "Advent of code - Day 3"
+output: html_notebook
+---
+
+https://adventofcode.com/2020/day/3
+```{r}
+library(stringr)
+input = readLines("Input/day3.1.txt")
+input = str_split(input, "", simplify = TRUE)
+input_duplicated = input
+
+#number of cols must be 3 * NROW to reach bottom
+for(i in 1:(NROW(input)*3/NCOL(input))){
+  input_duplicated = cbind(input_duplicated, input)
+}
+
+#get all characters on the slope 1, 3
+output = sapply(1:NROW(input_duplicated), function(i){input_duplicated[i, (i-1)*3 + 1]})
+length(output[output == "#"])
+```
+
+part2
+```{r}
+library(stringr)
+input = readLines("Input/day3.1.txt")
+input = str_split(input, "", simplify = TRUE)
+
+slide = function(input, right, down){
+  input_duplicated = input
+  
+    for(i in 1:NROW(input)*ceiling(right/down)/NCOL(input)){
+      input_duplicated = cbind(input_duplicated, input)
+    }
+  
+  
+  output = sapply(1:NROW(input_duplicated),
+                  function(i){
+                    if((i-1)*down + 1 <= NROW(input_duplicated)){ input_duplicated[(i-1)*down + 1, (i-1)*right + 1] }
+                  })
+  
+  return(length(output[output == "#"]))
+  
+}
+
+slide(input, 1, 1)
+slide(input, 3, 1)
+slide(input, 5, 1)
+slide(input, 7, 1)
+slide(input, 1, 2)
+58*223*105*74*35
+```
+

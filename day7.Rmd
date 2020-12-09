@@ -1,0 +1,81 @@
+---
+title: "Advent of code - Day 7"
+output: html_notebook
+---
+
+https://adventofcode.com/2020/day/7
+
+```{r}
+library(dplyr)
+library(stringr)
+library(tidyr)
+
+data = data.frame(input = readLines("Input/day7.1.txt"))
+data$bags = str_extract(data$input, "^.*?(?=\\sbags\\scontain)")
+data$contained = str_extract(data$input, "(?<=\\scontain\\s).*$")
+
+search_bags_containing_color = function(data, searched_color){
+  bags_containing_color = data$bags[str_detect(data$contained, searched_color)]
+  contains_color = data$bags[str_detect(data$contained, searched_color)]
+  next_search = paste0("((",paste(contains_color, collapse = ")|("), "))")
+  
+  while(length(data$bags[str_detect(data$contained, next_search)]) > 0){
+    contains_color = data$bags[str_detect(data$contained, next_search)]
+    next_search = paste0("((",paste(contains_color, collapse = ")|("), "))")
+    bags_containing_color = c(bags_containing_color, contains_color)
+  }
+  
+  bags_containing_color
+}
+
+searched_color = "shiny gold"
+length(unique(search_bags_containing_color(data, searched_color)))
+```
+
+https://adventofcode.com/2020/day/7#part2
+```{r}
+data = data.frame(input = readLines("Input/day7.1.txt"))
+data$bags = str_extract(data$input, "^.*?(?=\\sbags\\scontain)")
+data$contained = str_extract(data$input, "(?<=\\scontain\\s).*$")
+
+data = data %>%
+  group_by(bags) %>%
+  mutate(contained_split = str_split(contained, ",\\s")) %>%
+  unnest(contained_split)
+
+data = data %>%
+  mutate(n_bag_contained = as.numeric(str_extract(contained_split, "^\\d+")),
+         color_bag_contained = str_extract(contained_split, "(?<=^\\d\\s).*?(?=\\sbag)"))
+
+data = data %>%
+  select(bags, n_bag_contained, color_bag_contained)
+
+data$n_bag_contained[is.na(data$n_bag_contained)] = 0
+
+search_bag_contained = function(data, searched_color){
+  
+  all_bags_contained = data %>% filter(bags == searched_color)
+  bags_contained = all_bags_contained
+  
+  while(NROW(bags_contained) != 0){
+    bag_list = list()
+    for(i in 1:NROW(bags_contained)){
+      bag_list[[i]] = data %>%
+        filter(bags == bags_contained$color_bag_contained[i]) %>%
+        mutate(n_bag_contained = n_bag_contained * bags_contained$n_bag_contained[i])
+    }
+    bag_list = bind_rows(bag_list)
+    bags_contained = bag_list
+    all_bags_contained = bind_rows(all_bags_contained, bags_contained)
+  }
+  return(all_bags_contained)
+  
+}
+
+
+x = search_bag_contained(data, "shiny gold")
+sum(x$n_bag_contained)
+```
+
+
+

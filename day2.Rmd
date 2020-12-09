@@ -1,0 +1,67 @@
+---
+title: "Advent of code - Day 2"
+output: html_notebook
+---
+
+```{r}
+library(stringr)
+```
+
+
+https://adventofcode.com/2020/day/2
+```{r}
+input = read.table("Input/day2.1.txt", sep = " ")
+
+#range of repetition
+input$min_range = as.numeric(str_extract(input$V1, "^\\d+"))
+input$max_range = as.numeric(str_extract(input$V1, "\\d+$"))
+
+#letter policy
+input$letter = str_replace(input$V2, ":", "")
+
+#password
+input$password = input$V3
+
+#number of letter in password
+input$n_letter_in_password = str_count(string = input$password,
+                                     pattern = input$letter)
+#test if number of letter is in range
+input$password_valid = (input$n_letter_in_password >= input$min_range) & (input$n_letter_in_password <= input$max_range)
+
+#number of TRUE
+sum(as.numeric(input$password_valid))
+```
+
+https://adventofcode.com/2020/day/2#part2
+```{r}
+input = read.table("Input/day2.1.txt", sep = " ")
+
+#exacte positions
+input$pos1 = as.numeric(str_extract(input$V1, "^\\d+"))
+input$pos2 = as.numeric(str_extract(input$V1, "\\d+$"))
+
+#letter policy
+input$letter = str_replace(input$V2, ":", "")
+
+#password
+input$password = input$V3
+
+#letter at each positions
+input$letter_at_pos1 = substring(input$password, input$pos1, input$pos1)
+input$letter_at_pos2 = substring(input$password, input$pos2, input$pos2)
+
+#number of letters at each positions that are equal to the letter policy
+input$password_valid = sapply(1:NROW(input),
+                              function(x){
+                                sum(
+                                  as.numeric(
+                                    c(input$letter_at_pos1[x], input$letter_at_pos2[x]) == input$letter[x]
+                                    )
+                                  )
+                                })
+
+#test if number of letter is equal to one and count
+sum(as.numeric(input$password_valid == 1))
+```
+
+

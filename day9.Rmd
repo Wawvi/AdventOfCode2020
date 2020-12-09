@@ -1,0 +1,57 @@
+---
+title: "Advent of code - Day 9"
+output: html_notebook
+---
+
+https://adventofcode.com/2020/day/9
+
+```{r}
+input = as.numeric(readLines("Input/day9.1.txt"))
+i = 26
+
+XMAS_first_step = function(input){
+  
+  for(i in 26:length(input)){
+    
+    grid_data = expand.grid(input[(i-25):(i-1)], input[(i-25):(i-1)])
+    grid_data = grid_data[grid_data$Var1 != grid_data$Var2,]
+    grid_data$sum = grid_data$Var1 + grid_data$Var2
+    if(!input[i] %in% grid_data$sum){
+      return(input[i])
+    }
+    
+  }
+  
+}
+
+XMAX_first_step(input)
+
+```
+https://adventofcode.com/2020/day/9#part2
+```{r}
+XMAS = function(input){
+  #first step, find invalid_number
+  for(i in 26:length(input)){
+    grid_data = expand.grid(input[(i-25):(i-1)], input[(i-25):(i-1)])
+    grid_data = grid_data[grid_data$Var1 != grid_data$Var2,]
+    grid_data$sum = grid_data$Var1 + grid_data$Var2
+    if(!input[i] %in% grid_data$sum){
+      invalid_number = input[i]
+      break
+    }
+  }
+  
+  #second step, find contiguous set of at least two numbers in the list that sums to the invalid number
+  for(start in 1:length(input)){
+    for(end in (start+1):length(input)){
+      if(sum(input[start:end]) == invalid_number){
+        return(min(input[start:end]) + max(input[start:end]))
+      }
+    }
+  }
+  
+}
+
+XMAS(input)
+```
+

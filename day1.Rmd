@@ -1,0 +1,26 @@
+---
+title: "Advent of code - Day 1"
+output: html_notebook
+---
+
+https://adventofcode.com/2020/day/1
+
+```{r}
+input = read.table("Input/day1.1.txt")
+input = expand.grid(input$V1, input$V1)
+input$sum = input$Var1 + input$Var2
+
+unique(input[which(input$sum == 2020), "Var1"])
+prod(unique(input[which(input$sum == 2020), "Var1"]))
+```
+
+https://adventofcode.com/2020/day/1#part2
+```{r}
+input = read.table("Input/day1.1.txt")
+input = expand.grid(input$V1, input$V1, input$V1)
+input$sum = input$Var1 + input$Var2 + input$Var3 
+
+unique(input[which(input$sum == 2020), "Var1"])
+prod(unique(input[which(input$sum == 2020), "Var1"]))
+```
+

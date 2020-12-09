@@ -1,0 +1,91 @@
+---
+title: "Advent of code - Day 4"
+output: html_notebook
+---
+
+
+https://adventofcode.com/2020/day/4
+```{r}
+library(stringr)
+
+input = data.frame(raw_input = readLines("Input/day4.1.txt"))
+input$passport_id = as.numeric(input$raw_input == "")
+input$passport_id = cumsum(input$passport_id) + 1
+
+input = input[input$raw_input != "",]
+
+input = aggregate(input$raw_input, by = list(input$passport_id), FUN = function(x) paste(x, collapse = " "))
+colnames(input) = c("passport_id", "passport_info")
+
+#look after var: and before a space, a newline or the end of the character
+input$byr = str_extract(input$passport_info, "(?<=byr:).*?(?=(\\s)|(\\n)|($))") 
+input$iyr = str_extract(input$passport_info, "(?<=iyr:).*?(?=(\\s)|(\\n)|($))")
+input$eyr = str_extract(input$passport_info, "(?<=eyr:).*?(?=(\\s)|(\\n)|($))")
+input$hgt = str_extract(input$passport_info, "(?<=hgt:).*?(?=(\\s)|(\\n)|($))")
+input$hcl = str_extract(input$passport_info, "(?<=hcl:).*?(?=(\\s)|(\\n)|($))")
+input$ecl = str_extract(input$passport_info, "(?<=ecl:).*?(?=(\\s)|(\\n)|($))")
+input$pid = str_extract(input$passport_info, "(?<=pid:).*?(?=(\\s)|(\\n)|($))")
+input$cid = str_extract(input$passport_info, "(?<=cid:).*?(?=(\\s)|(\\n)|($))")
+
+input$validate = sapply(1:NROW(input), function(i) {!any(is.na(input[i,3:9]))})
+
+sum(as.numeric(input$validate))
+```
+https://adventofcode.com/2020/day/4#part2
+```{r}
+library(stringr)
+
+input = data.frame(raw_input = readLines("Input/day4.1.txt"))
+input$passport_id = as.numeric(input$raw_input == "")
+input$passport_id = cumsum(input$passport_id) + 1
+
+input = input[input$raw_input != "",]
+
+input = aggregate(input$raw_input, by = list(input$passport_id), FUN = function(x) paste(x, collapse = " "))
+colnames(input) = c("passport_id", "passport_info")
+
+#look after var: and before a space, a newline or the end of the character
+input$byr = str_extract(input$passport_info, "(?<=byr:)\\d{4}?(?=(\\s)|(\\n)|($))") 
+input$iyr = str_extract(input$passport_info, "(?<=iyr:)\\d{4}?(?=(\\s)|(\\n)|($))")
+input$eyr = str_extract(input$passport_info, "(?<=eyr:)\\d{4}?(?=(\\s)|(\\n)|($))")
+input$hgt = str_extract(input$passport_info, "(?<=hgt:)(\\d+((cm)|(in)))?(?=(\\s)|(\\n)|($))")
+input$hcl = str_extract(input$passport_info, "(?<=hcl:)#[a-f0-9]{6}?(?=(\\s)|(\\n)|($))")
+input$ecl = str_extract(input$passport_info, "(?<=ecl:)((amb)|(blu)|(brn)|(gry)|(grn)|(hzl)|(oth))?(?=(\\s)|(\\n)|($))")
+input$pid = str_extract(input$passport_info, "(?<=pid:)\\d{9}?(?=(\\s)|(\\n)|($))")
+input$cid = str_extract(input$passport_info, "(?<=cid:).*?(?=(\\s)|(\\n)|($))")
+
+
+#validate
+validate = input
+validate$byr = as.numeric(input$byr) >= 1920 & as.numeric(input$byr) <= 2002
+validate$iyr = as.numeric(input$iyr) >= 2010 & as.numeric(input$iyr) <= 2020
+validate$eyr = as.numeric(input$eyr) >= 2020 & as.numeric(input$eyr) <= 2030
+validate$hgt = ifelse(str_detect(input$hgt, "cm"),
+                   as.numeric(str_extract(input$hgt, "\\d+")) >= 150 & as.numeric(str_extract(input$hgt, "\\d+")) <= 193,
+                   as.numeric(str_extract(input$hgt, "\\d+")) >= 56 & as.numeric(str_extract(input$hgt, "\\d+")) <= 76)
+validate$hcl = !is.na(input$hcl)
+validate$ecl = !is.na(input$ecl)
+validate$pid = !is.na(input$pid)
+validate$cid = !is.na(input$cid)
+
+validate[is.na(validate)] = FALSE
+validate$validate = sapply(1:NROW(validate), function(i) {!any(!validate[i,3:9])})
+
+sum(as.numeric(validate$validate))
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

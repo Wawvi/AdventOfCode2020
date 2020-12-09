@@ -1,0 +1,102 @@
+---
+title: "Advent of code - Day 8"
+output: html_notebook
+---
+
+https://adventofcode.com/2020/day/8
+```{r}
+library(stringr)
+input = readLines("Input/day8.1.txt")
+
+bootcode_interpretor = function(instructions){
+  acc = 0
+  data = data.frame(instructions = instructions,
+                    operation = str_extract(instructions, "^.*?(?=\\s)"),
+                    argument = as.numeric(str_extract(instructions, "(?<=\\s).*$")))
+  
+  index_visited = c()
+  index = 1
+  while(!index %in% index_visited){
+    index_visited = c(index_visited, index)
+    
+    if(data$operation[index] == "nop"){
+      index = index + 1
+    }
+    else if(data$operation[index] == "acc"){
+      acc = acc + data$argument[index]
+      index = index + 1
+    }
+    else if(data$operation[index] == "jmp"){
+      index = index + data$argument[index]
+    }
+  }
+  
+  return(acc)
+}
+
+bootcode_interpretor(input)
+```
+
+https://adventofcode.com/2020/day/8#part2
+```{r}
+library(stringr)
+input = readLines("Input/day8.1.txt")
+
+bootcode_interpretor = function(instructions){
+  acc = 0
+  data = data.frame(instructions = instructions,
+                    operation = str_extract(instructions, "^.*?(?=\\s)"),
+                    argument = as.numeric(str_extract(instructions, "(?<=\\s).*$")))
+  
+  index_visited = c()
+  index = 1
+  while(TRUE){
+    index_visited = c(index_visited, index)
+    
+    if(data$operation[index] == "nop"){
+      index = index + 1
+    }
+    else if(data$operation[index] == "acc"){
+      acc = acc + data$argument[index]
+      index = index + 1
+    }
+    else if(data$operation[index] == "jmp"){
+      index = index + data$argument[index]
+    }
+    
+    #program termination
+    ##if infinite loop
+    if(index %in% index_visited){
+      return(list(
+        terminated = FALSE,
+        acc = acc
+      ))
+    }
+    ##program terminated
+    if(index == NROW(data) + 1){
+      return(list(
+        terminated = TRUE,
+        acc = acc
+      ))
+    }
+    
+  }
+
+  return(acc)
+}
+
+results = lapply(which(str_detect(input, "(jmp)|(nop)")),
+                 function(i){
+                   input_replace = input
+                   if(str_detect(input[i], "nop")){
+                     input_replace[i] = str_replace(input[i], "nop", "jmp")
+                   }else{
+                     input_replace[i] = str_replace(input[i], "jmp", "nop")
+                   }
+                   bootcode_interpretor(input_replace)
+                 }
+)
+results = bind_rows(results)
+results$acc[results$terminated]
+```
+

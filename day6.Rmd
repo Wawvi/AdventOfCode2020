@@ -1,0 +1,59 @@
+---
+title: "Advent of code - Day 6"
+output: html_notebook
+---
+
+https://adventofcode.com/2020/day/6 
+
+```{r}
+library(dplyr)
+library(stringr)
+data = data.frame(input = readLines("Input/day6.1.txt"))
+
+group = 0
+group_id = c()
+for(i in 1:NROW(data)){
+  if(data$input[i] == ""){
+    group = group + 1
+  }
+  
+  group_id = c(group_id, group)
+  
+}
+
+data$group_id = group_id
+data = data[data$input != "", ]
+
+group_data = data %>%
+  group_by(group_id) %>%
+  summarise(positive_answers = paste(input, collapse = ""),
+            unique_positive_answer = paste(unique(unlist(str_split(positive_answers, ""))), collapse = ""),
+            count_unique = str_length(unique_positive_answer))
+
+sum(group_data$count_unique)
+```
+
+https://adventofcode.com/2020/day/6#part2
+```{r}
+group_data = data %>%
+  group_by(group_id) %>%
+  summarise(members_in_group = n(),
+            positive_answers = paste(input, collapse = ""),
+            unique_positive_answer = paste(unique(unlist(str_split(positive_answers, ""))), collapse = ""),
+            count_unique = str_length(unique_positive_answer))
+
+group_data$all_positive_answers_for_group = sapply(1:NROW(group_data),
+                                                   function(i){
+                                                     x = data.frame(
+                                                       characters_in_answer = unlist(str_split(group_data$positive_answers[i], ""))
+                                                     ) %>%
+                                                       group_by(characters_in_answer) %>%
+                                                       summarise(count_chars = n())
+                                                     
+                                                     paste(x$characters_in_answer[x$count_chars == group_data$members_in_group[i]], collapse = "")
+                                                   })
+
+group_data = group_data %>% mutate(count_all_positive = str_length(all_positive_answers_for_group))
+sum(group_data$count_all_positive)
+```
+
